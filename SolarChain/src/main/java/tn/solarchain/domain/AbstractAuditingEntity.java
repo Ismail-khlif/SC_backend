@@ -16,11 +16,9 @@ public abstract class AbstractAuditingEntity<T> implements Serializable {
     private static final long serialVersionUID = 1L;
 
     public abstract T getId();
-
     @CreatedBy
     @Field("created_by")
     private String createdBy;
-
     @CreatedDate
     @Field("created_date")
     private Instant createdDate = Instant.now();

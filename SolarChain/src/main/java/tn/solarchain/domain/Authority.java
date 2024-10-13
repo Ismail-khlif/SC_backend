@@ -11,7 +11,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Authority implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
     @NotNull
     @Size(max = 50)
     @Id

@@ -8,7 +8,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 import tn.solarchain.domain.User;
 
-
 @Repository
 public interface UserRepository extends MongoRepository<User, String> {
     Optional<User> findOneByActivationKey(String activationKey);
