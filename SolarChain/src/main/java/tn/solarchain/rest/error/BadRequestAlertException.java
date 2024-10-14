@@ -1,50 +1,29 @@
 package tn.solarchain.rest.error;
 
-import java.net.URI;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.ErrorResponseException;
-import tech.jhipster.web.rest.errors.ProblemDetailWithCause;
-import tech.jhipster.web.rest.errors.ProblemDetailWithCause.ProblemDetailWithCauseBuilder;
+import org.springframework.http.ProblemDetail;
+import org.springframework.web.server.ResponseStatusException;
 
-@SuppressWarnings("java:S110")
-public class BadRequestAlertException extends ErrorResponseException {
+import java.net.URI;
+
+public class BadRequestAlertException extends ResponseStatusException {
 
     private static final long serialVersionUID = 1L;
+    private final ProblemDetail problemDetail;
 
-    private final String entityName;
-
-    private final String errorKey;
-
+    public BadRequestAlertException(URI type, String title, String entityName, String errorKey) {
+        super(HttpStatus.BAD_REQUEST, title);
+        this.problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        this.problemDetail.setType(type);
+        this.problemDetail.setTitle(title);
+        this.problemDetail.setDetail("An error occurred in entity: " + entityName);
+        this.problemDetail.setProperty("errorKey", errorKey);
+    }
     public BadRequestAlertException(String defaultMessage, String entityName, String errorKey) {
-        this(ErrorConstants.DEFAULT_TYPE, defaultMessage, entityName, errorKey);
+        this(URI.create("about:blank"), defaultMessage, entityName, errorKey); // Provide a default URI if not supplied
     }
 
-    public BadRequestAlertException(URI type, String defaultMessage, String entityName, String errorKey) {
-        super(
-                HttpStatus.BAD_REQUEST,
-                ProblemDetailWithCauseBuilder.instance()
-                        .withStatus(HttpStatus.BAD_REQUEST.value())
-                        .withType(type)
-                        .withTitle(defaultMessage)
-                        .withProperty("message", "error." + errorKey)
-                        .withProperty("params", entityName)
-                        .build(),
-                null
-        );
-        this.entityName = entityName;
-        this.errorKey = errorKey;
-    }
-
-    public String getEntityName() {
-        return entityName;
-    }
-
-    public String getErrorKey() {
-        return errorKey;
-    }
-
-    public ProblemDetailWithCause getProblemDetailWithCause() {
-        return (ProblemDetailWithCause) this.getBody();
+    public ProblemDetail getProblemDetail() {
+        return problemDetail;
     }
 }
-

@@ -1,5 +1,6 @@
 package tn.solarchain.service;
 
+import org.springframework.data.domain.Pageable;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -7,11 +8,9 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import tech.jhipster.security.RandomUtil;
 import tn.solarchain.config.Constants;
 import tn.solarchain.domain.Authority;
 import tn.solarchain.domain.User;
@@ -31,9 +30,7 @@ public class UserService {
     private static final Logger LOG = LoggerFactory.getLogger(UserService.class);
 
     private final UserRepository userRepository;
-
     private final PasswordEncoder passwordEncoder;
-
     private final AuthorityRepository authorityRepository;
 
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthorityRepository authorityRepository) {
@@ -69,17 +66,18 @@ public class UserService {
                 });
     }
 
-    public Optional<User> requestPasswordReset(String mail) {
+    public Optional<User> requestPasswordReset(String email) {
         return userRepository
-                .findOneByEmailIgnoreCase(mail)
+                .findOneByEmailIgnoreCase(email)
                 .filter(User::isActivated)
                 .map(user -> {
-                    user.setResetKey(RandomUtil.generateResetKey());
+                    user.setResetKey(UUID.randomUUID().toString());  // Use UUID for reset key
                     user.setResetDate(Instant.now());
                     userRepository.save(user);
                     return user;
                 });
     }
+
     public User registerUser(AdminUserDTO userDTO, String password) {
         userRepository
                 .findOneByLogin(userDTO.getLogin().toLowerCase())
@@ -97,22 +95,22 @@ public class UserService {
                         throw new EmailAlreadyUsedException();
                     }
                 });
+
         User newUser = new User();
         String encryptedPassword = passwordEncoder.encode(password);
         newUser.setLogin(userDTO.getLogin().toLowerCase());
         newUser.setPassword(encryptedPassword);
         newUser.setFirstName(userDTO.getFirstName());
         newUser.setLastName(userDTO.getLastName());
-        if (userDTO.getEmail() != null) {
-            newUser.setEmail(userDTO.getEmail().toLowerCase());
-        }
-        newUser.setImageUrl(userDTO.getImageUrl());
-        newUser.setLangKey(userDTO.getLangKey());
+        newUser.setEmail(userDTO.getEmail().toLowerCase());
         newUser.setActivated(false);
-        newUser.setActivationKey(RandomUtil.generateActivationKey());
+        newUser.setActivationKey(UUID.randomUUID().toString());  // Use UUID for activation key
+
+        // Add authorities
         Set<Authority> authorities = new HashSet<>();
-        authorityRepository.findById(AuthoritiesConstants.USER).ifPresent(authorities::add);
+        authorityRepository.findById(AuthoritiesConstants.USER).ifPresent(authorities::add);  // Use AuthoritiesConstants
         newUser.setAuthorities(authorities);
+
         userRepository.save(newUser);
         LOG.debug("Created Information for User: {}", newUser);
         return newUser;
@@ -131,20 +129,13 @@ public class UserService {
         user.setLogin(userDTO.getLogin().toLowerCase());
         user.setFirstName(userDTO.getFirstName());
         user.setLastName(userDTO.getLastName());
-        if (userDTO.getEmail() != null) {
-            user.setEmail(userDTO.getEmail().toLowerCase());
-        }
-        user.setImageUrl(userDTO.getImageUrl());
-        if (userDTO.getLangKey() == null) {
-            user.setLangKey(Constants.DEFAULT_LANGUAGE);
-        } else {
-            user.setLangKey(userDTO.getLangKey());
-        }
-        String encryptedPassword = passwordEncoder.encode(RandomUtil.generatePassword());
+        user.setEmail(userDTO.getEmail().toLowerCase());
+        String encryptedPassword = passwordEncoder.encode(UUID.randomUUID().toString());
         user.setPassword(encryptedPassword);
-        user.setResetKey(RandomUtil.generateResetKey());
+        user.setResetKey(UUID.randomUUID().toString());
         user.setResetDate(Instant.now());
         user.setActivated(true);
+
         if (userDTO.getAuthorities() != null) {
             Set<Authority> authorities = userDTO
                     .getAuthorities()
@@ -155,25 +146,28 @@ public class UserService {
                     .collect(Collectors.toSet());
             user.setAuthorities(authorities);
         }
+
         userRepository.save(user);
         LOG.debug("Created Information for User: {}", user);
         return user;
     }
+    public Page<UserDTO> getAllPublicUsers(Pageable pageable) {
+        return userRepository.findAllByIdNotNullAndActivatedIsTrue(pageable)
+                .map(user -> new UserDTO(user));
+    }
 
     public Optional<AdminUserDTO> updateUser(AdminUserDTO userDTO) {
-        return Optional.of(userRepository.findById(userDTO.getId()))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+        return userRepository.findById(userDTO.getId())
                 .map(user -> {
                     user.setLogin(userDTO.getLogin().toLowerCase());
                     user.setFirstName(userDTO.getFirstName());
                     user.setLastName(userDTO.getLastName());
-                    if (userDTO.getEmail() != null) {
-                        user.setEmail(userDTO.getEmail().toLowerCase());
-                    }
+                    user.setEmail(userDTO.getEmail().toLowerCase());
                     user.setImageUrl(userDTO.getImageUrl());
                     user.setActivated(userDTO.isActivated());
-                    user.setLangKey(userDTO.getLangKey());
+                    user.setLangKey(userDTO.getLangKey() != null ? userDTO.getLangKey() : Constants.DEFAULT_LANGUAGE); // Use Constants
+
+                    // Update authorities
                     Set<Authority> managedAuthorities = user.getAuthorities();
                     managedAuthorities.clear();
                     userDTO
@@ -183,11 +177,11 @@ public class UserService {
                             .filter(Optional::isPresent)
                             .map(Optional::get)
                             .forEach(managedAuthorities::add);
+
                     userRepository.save(user);
                     LOG.debug("Changed Information for User: {}", user);
-                    return user;
-                })
-                .map(AdminUserDTO::new);
+                    return new AdminUserDTO(user);
+                });
     }
 
     public void deleteUser(String login) {
@@ -208,7 +202,7 @@ public class UserService {
                     if (email != null) {
                         user.setEmail(email.toLowerCase());
                     }
-                    user.setLangKey(langKey);
+                    user.setLangKey(langKey != null ? langKey : Constants.DEFAULT_LANGUAGE);  // Use Constants for default language
                     user.setImageUrl(imageUrl);
                     userRepository.save(user);
                     LOG.debug("Changed Information for User: {}", user);
@@ -230,20 +224,15 @@ public class UserService {
                 });
     }
 
-    public Page<AdminUserDTO> getAllManagedUsers(Pageable pageable) {
-        return userRepository.findAll(pageable).map(AdminUserDTO::new);
+    public Optional<User> getUserWithAuthorities() {
+        return SecurityUtils.getCurrentUserLogin()
+                .flatMap(userRepository::findOneByLogin);
     }
-
-    public Page<UserDTO> getAllPublicUsers(Pageable pageable) {
-        return userRepository.findAllByIdNotNullAndActivatedIsTrue(pageable).map(UserDTO::new);
-    }
-
     public Optional<User> getUserWithAuthoritiesByLogin(String login) {
         return userRepository.findOneByLogin(login);
     }
-
-    public Optional<User> getUserWithAuthorities() {
-        return SecurityUtils.getCurrentUserLogin().flatMap(userRepository::findOneByLogin);
+    public Page<AdminUserDTO> getAllManagedUsers(Pageable pageable) {
+        return userRepository.findAll(pageable).map(AdminUserDTO::new);
     }
 
     @Scheduled(cron = "0 0 1 * * ?")
@@ -260,3 +249,5 @@ public class UserService {
         return authorityRepository.findAll().stream().map(Authority::getName).toList();
     }
 }
+
+

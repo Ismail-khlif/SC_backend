@@ -31,6 +31,7 @@
         <mapstruct.version>1.6.2</mapstruct.version>
         <jhipster-framework.version>8.7.1</jhipster-framework.version>
         <mongock-bom.version>5.4.4</mongock-bom.version>
+        <springdoc-openapi-starter-webmvc-api.version>2.6.0</springdoc-openapi-starter-webmvc-api.version>
     </properties>
 
     <dependencyManagement>
@@ -64,6 +65,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-oauth2-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-api</artifactId>
+            <version>${springdoc-openapi-starter-webmvc-api.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -123,9 +129,16 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>tech.jhipster</groupId>
-            <artifactId>jhipster-framework</artifactId>
-            <version>${jhipster-framework.version}</version>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
     </dependencies>
 
