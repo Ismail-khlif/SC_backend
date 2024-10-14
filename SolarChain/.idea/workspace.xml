@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="0919bcca-25cd-46df-92bd-200b4e4e31d6" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/main/java/tn/solarchain/config/WebSecurityConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/tn/solarchain/domain/JwtResponse.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/tn/solarchain/security/AuthEntryPointJwt.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/tn/solarchain/security/AuthTokenFilter.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/tn/solarchain/security/UserDetailsImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/tn/solarchain/security/jwt/JwtUtils.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/tn/solarchain/service/DataInitializer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/tn/solarchain/service/dto/LoginRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/tn/solarchain/SolarChainApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/tn/solarchain/SolarChainApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/tn/solarchain/config/SecurityConfiguration.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/tn/solarchain/config/dbmigrations/InitialSetupMigration.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/tn/solarchain/config/dbmigrations/InitialSetupMigration.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/tn/solarchain/domain/Authority.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/tn/solarchain/domain/Authority.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/tn/solarchain/domain/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/tn/solarchain/domain/User.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/tn/solarchain/repository/AuthorityRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/tn/solarchain/repository/AuthorityRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/tn/solarchain/rest/controller/AuthenticateController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/tn/solarchain/rest/controller/AuthenticateController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/tn/solarchain/rest/controller/PublicUserResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/tn/solarchain/rest/controller/PublicUserResource.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/tn/solarchain/security/CustomUserDetails.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/tn/solarchain/security/CustomUserDetailsService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/tn/solarchain/security/CustomUserDetailsService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/tn/solarchain/security/TestAuthenticationManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/tn/solarchain/security/TestAuthenticationManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/tn/solarchain/security/jwt/TokenProvider.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/tn/solarchain/security/jwt/TokenProvider.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/tn/solarchain/SolarChainApplication.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/tn/solarchain/SolarChainApplication.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/tn/solarchain/config/SecurityConfiguration.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/tn/solarchain/config/dbmigrations/InitialSetupMigration.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/tn/solarchain/domain/Authority.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/tn/solarchain/domain/Authority.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/tn/solarchain/domain/User.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/tn/solarchain/domain/User.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/tn/solarchain/repository/AuthorityRepository.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/tn/solarchain/repository/AuthorityRepository.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/tn/solarchain/rest/controller/AccountController$AccountControllerException.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/tn/solarchain/rest/controller/AccountController$AccountControllerException.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/tn/solarchain/rest/controller/AccountController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/tn/solarchain/rest/controller/AccountController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/tn/solarchain/rest/controller/AuthenticateController$JWTToken.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/tn/solarchain/rest/controller/AuthenticateController$JWTToken.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/tn/solarchain/rest/controller/AuthenticateController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/tn/solarchain/rest/controller/AuthenticateController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/tn/solarchain/rest/controller/AuthorityController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/tn/solarchain/rest/controller/AuthorityController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/tn/solarchain/rest/controller/PublicUserResource.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/tn/solarchain/rest/controller/PublicUserResource.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/tn/solarchain/rest/controller/UserController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/tn/solarchain/rest/controller/UserController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/tn/solarchain/rest/error/BadRequestAlertException.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/tn/solarchain/rest/error/BadRequestAlertException.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/tn/solarchain/rest/vm/LoginVM.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/tn/solarchain/rest/vm/LoginVM.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/tn/solarchain/rest/vm/ManagedUserVM.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/tn/solarchain/rest/vm/ManagedUserVM.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/tn/solarchain/security/CustomUserDetails.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/tn/solarchain/security/CustomUserDetailsService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/tn/solarchain/security/CustomUserDetailsService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/tn/solarchain/security/DomainUserDetailsService.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/tn/solarchain/security/SecurityUtils.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/tn/solarchain/security/SecurityUtils.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/tn/solarchain/security/TestAuthenticationManager.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/tn/solarchain/security/TestAuthenticationManager.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/tn/solarchain/security/jwt/JWTFilter.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/tn/solarchain/security/jwt/JWTFilter.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/tn/solarchain/security/jwt/TokenProvider.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/tn/solarchain/security/jwt/TokenProvider.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/tn/solarchain/service/UserService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/tn/solarchain/service/UserService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/tn/solarchain/service/dto/AdminUserDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/tn/solarchain/service/dto/AdminUserDTO.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/tn/solarchain/service/dto/UserDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/tn/solarchain/service/dto/UserDTO.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/tn/solarchain/service/mapper/UserMapper.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/tn/solarchain/service/mapper/UserMapper.class" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;bramatn&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Ismail-khlif/SC_backend.git&quot;,
+    &quot;accountId&quot;: &quot;4232bd71-4298-4a22-b55a-c7400a8e02b8&quot;
+  }
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 8
+}</component>
+  <component name="ProjectId" id="2nOWg9AxuXQ9xQljBWCrNeY4uh2" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Maven.SolarChain [clean].executor": "Run",
+    "Maven.SolarChain [compile].executor": "Run",
+    "Maven.SolarChain [install].executor": "Run",
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "Spring Boot.SolarChainApplication.executor": "Run",
+    "git-widget-placeholder": "local__racem",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/Users/macbook/Documents/GitHub/SC_backend/SolarChain",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.0",
+    "settings.editor.selected.configurable": "reference.settings.project.maven.repository.indices",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="tn.solarchain.security" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="SolarChainApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="SolarChain" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="tn.solarchain.SolarChainApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9f38398b9061-39b83d9b5494-intellij.indexing.shared.core-IU-241.18034.62" />
+        <option value="bundled-js-predefined-1d06a55b98c1-0b3e54e931b4-JavaScript-IU-241.18034.62" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="0919bcca-25cd-46df-92bd-200b4e4e31d6" name="Changes" comment="" />
+      <created>1728844710555</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1728844710555</updated>
+      <workItem from="1728844711559" duration="3250000" />
+      <workItem from="1728930906026" duration="17253000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>
