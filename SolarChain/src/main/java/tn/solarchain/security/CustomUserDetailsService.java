@@ -1,11 +1,16 @@
 package tn.solarchain.security;
 
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import tn.solarchain.domain.User;
 import tn.solarchain.repository.UserRepository;
+import tn.solarchain.domain.User;
+
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static org.reflections.Reflections.log;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
@@ -18,9 +23,28 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findOneByLogin(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+        log.debug("Attempting to load user by username: {}", username);
 
-        return new CustomUserDetails(user);
+        Optional<User> userOptional = userRepository.findByLogin(username);
+
+        if (userOptional.isEmpty()) {
+            log.warn("User not found for username: {}", username);
+            throw new UsernameNotFoundException("User not found: " + username);
+        }
+
+        User user = userOptional.get();
+
+        log.info("User found: {}", user.getLogin());
+        log.info("User password: {}", user.getPassword()); // This should be a hashed password
+        log.info("User authorities: {}", user.getAuthorities());
+
+        return org.springframework.security.core.userdetails.User
+                .withUsername(user.getLogin())
+                .password(user.getPassword())
+                .authorities(user.getAuthorities().stream()
+                        .map(authority -> authority.getName())
+                        .collect(Collectors.toList()).toArray(new String[0]))
+                .build();
     }
 }
+

@@ -1,55 +1,111 @@
 package tn.solarchain.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
+import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
+
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import com.nimbusds.jose.jwk.source.ImmutableSecret;
+import com.nimbusds.jose.util.Base64;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
-import tn.solarchain.security.jwt.JWTFilter;
+import tn.solarchain.security.CustomUserDetailsService;
+
+import java.nio.charset.StandardCharsets;
 
 @Configuration
-@EnableMethodSecurity(securedEnabled = false)
+@EnableMethodSecurity
+
 public class SecurityConfiguration {
+
+    private final CustomUserDetailsService customUserDetailsService;
+    public SecurityConfiguration(CustomUserDetailsService customUserDetailsService) {
+        this.customUserDetailsService = customUserDetailsService;
+    }
+    private final Logger log = LoggerFactory.getLogger(SecurityConfiguration.class);
+
+    @Value("${jwt.secret}")
+    private String jwtSecret;
+
+    @Value("${jwt.algorithm:HmacSHA256}")
+    private String jwtAlgorithm;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    /*
-        private final JWTFilter jwtFilter;
+    @Bean
+    public JwtEncoder jwtEncoder() {
+        SecretKey secretKey = new SecretKeySpec(getDecodedSecret(), jwtAlgorithm);
+        return new NimbusJwtEncoder(new ImmutableSecret<>(secretKey));
+    }
 
-        public SecurityConfiguration(JWTFilter jwtFilter) {
-            this.jwtFilter = jwtFilter;
-        }
+    @Bean
+    public JwtDecoder jwtDecoder() {
+        SecretKey secretKey = new SecretKeySpec(getDecodedSecret(), jwtAlgorithm);
+        return NimbusJwtDecoder.withSecretKey(secretKey).build();
+    }
+
+    @Bean
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+        JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+        grantedAuthoritiesConverter.setAuthorityPrefix("");
+        grantedAuthoritiesConverter.setAuthoritiesClaimName("authorities");
+
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
+        return jwtAuthenticationConverter;
+    }
+
+    @Bean
+    public BearerTokenResolver bearerTokenResolver() {
+        var bearerTokenResolver = new DefaultBearerTokenResolver();
+        bearerTokenResolver.setAllowUriQueryParameter(true);
+        return bearerTokenResolver;
+    }
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
 
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors().and().csrf().disable() // Disable CSRF for JWT usage
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) // JWT is stateless
+                .csrf().disable()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeHttpRequests()
-                .requestMatchers("/api/authenticate", "/api/register", "/api/activate", "/api/account/reset-password/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
-                .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
-                .anyRequest().authenticated() // All other requests need authentication
+                .requestMatchers("/api/authenticate").permitAll()
+                .anyRequest().permitAll()
                 .and()
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class); // Add JWT filter
+                .oauth2ResourceServer()
+                .jwt()
+                .jwtAuthenticationConverter(jwtAuthenticationConverter());
         return http.build();
-    }*/
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .cors().and().csrf().disable()
-                .authorizeHttpRequests()
-                .anyRequest().permitAll();
-        return http.build();
+    }
+
+    // Helper to decode the base64 secret
+    private byte[] getDecodedSecret() {
+        return Base64.from(jwtSecret).decode();
     }
 }
