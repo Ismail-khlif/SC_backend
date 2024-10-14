@@ -7,7 +7,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -34,6 +36,7 @@ import java.nio.charset.StandardCharsets;
 
 @Configuration
 @EnableMethodSecurity
+
 public class SecurityConfiguration {
 
 
@@ -55,6 +58,7 @@ public class SecurityConfiguration {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
 
     @Bean
     public JwtEncoder jwtEncoder() {
@@ -89,6 +93,7 @@ public class SecurityConfiguration {
     public DaoAuthenticationProvider authenticationProvider() {
         log.info("Configuring DaoAuthenticationProvider with CustomUserDetailsService");
 
+
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(customUserDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder()); // Define this as a bean elsewhere
@@ -98,7 +103,6 @@ public class SecurityConfiguration {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
-
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -121,4 +125,14 @@ public class SecurityConfiguration {
         return java.util.Base64.getDecoder().decode(jwtSecret);
     }
 
+
+    /*
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .cors().and().csrf().disable()
+                .authorizeHttpRequests()
+                .anyRequest().permitAll();
+        return http.build();
+    }*/
 }

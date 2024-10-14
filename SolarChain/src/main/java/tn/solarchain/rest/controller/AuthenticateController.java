@@ -46,7 +46,9 @@ public class AuthenticateController {
     private final JwtEncoder jwtEncoder;
     private final AuthenticationManager authenticationManager;
 
+
     @Value("${jwt.token-validity-in-seconds:0}")
+
     private long tokenValidityInSeconds;
 
     @Value("${jwt.token.validity.in.seconds.for.remember.me:0}")
@@ -91,6 +93,7 @@ public class AuthenticateController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 
 
 
@@ -157,6 +160,7 @@ public class AuthenticateController {
             throw e;  // Rethrow to ensure proper exception handling
         }
     }
+
 
 
 

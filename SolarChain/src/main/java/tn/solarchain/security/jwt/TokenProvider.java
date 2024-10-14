@@ -19,7 +19,7 @@ public class TokenProvider {
     private final long tokenValidityInMilliseconds;
 
     public TokenProvider(@Value("${jwt.secret}") String secret,
-                         @Value("${jwt.token-validity-in-seconds}") long tokenValidityInSeconds) {
+                         @Value("${jwt.token.validity.in.seconds}") long tokenValidityInSeconds) {
         this.key = Keys.hmacShaKeyFor(secret.getBytes());
         this.tokenValidityInMilliseconds = tokenValidityInSeconds * 1000;
     }
