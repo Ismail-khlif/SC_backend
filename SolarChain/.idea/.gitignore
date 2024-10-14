@@ -7,5 +7,5 @@
 /dataSources/
 /dataSources.local.xml
 # Ignore Maven/Gradle build output directories
-/target/
+/SolarChain/target/
 /build/
