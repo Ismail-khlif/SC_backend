@@ -1,5 +1,9 @@
 package tn.solarchain.rest.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import tn.solarchain.domain.Authority;
 import tn.solarchain.repository.AuthorityRepository;
 import tn.solarchain.rest.error.BadRequestAlertException;
@@ -20,6 +24,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/authorities")
+@Tag(name = "Authority", description = "API for managing authorities")
 public class AuthorityController {
 
     private static final Logger LOG = LoggerFactory.getLogger(AuthorityController.class);
@@ -29,7 +34,11 @@ public class AuthorityController {
     public AuthorityController(AuthorityRepository authorityRepository) {
         this.authorityRepository = authorityRepository;
     }
-
+    @Operation(summary = "Create a new authority", description = "Creates a new authority and saves it in the system")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Authority successfully created"),
+            @ApiResponse(responseCode = "400", description = "Authority already exists")
+    })
     @PostMapping("")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     public ResponseEntity<Authority> createAuthority(@Valid @RequestBody Authority authority) throws URISyntaxException {
@@ -42,14 +51,19 @@ public class AuthorityController {
                 .buildAndExpand(authority.getName()).toUri();
         return ResponseEntity.created(location).body(authority);
     }
-
+    @Operation(summary = "Get all authorities", description = "Retrieves a list of all authorities")
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved all authorities")
     @GetMapping("")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     public List<Authority> getAllAuthorities() {
         LOG.debug("REST request to get all Authorities");
         return authorityRepository.findAll();
     }
-
+    @Operation(summary = "Get an authority by ID", description = "Retrieves an authority by its ID")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved the authority"),
+            @ApiResponse(responseCode = "404", description = "Authority not found")
+    })
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     public ResponseEntity<Authority> getAuthority(@PathVariable("id") String id) {
@@ -57,7 +71,8 @@ public class AuthorityController {
         Optional<Authority> authority = authorityRepository.findById(id);
         return authority.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
-
+    @Operation(summary = "Delete an authority", description = "Deletes an authority by its ID")
+    @ApiResponse(responseCode = "204", description = "Authority successfully deleted")
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     public ResponseEntity<Void> deleteAuthority(@PathVariable("id") String id) {

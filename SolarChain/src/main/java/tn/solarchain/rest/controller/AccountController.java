@@ -1,5 +1,9 @@
 package tn.solarchain.rest.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import tn.solarchain.domain.User;
 import tn.solarchain.repository.UserRepository;
 import tn.solarchain.rest.error.*;
@@ -18,12 +22,9 @@ import tn.solarchain.service.UserService;
 import tn.solarchain.service.dto.AdminUserDTO;
 import tn.solarchain.service.dto.PasswordChangeDTO;
 
-/**
- * REST controller for managing the current user's account.
- */
 @RestController
 @RequestMapping("/api")
-
+@Tag(name = "Account", description = "API for managing user accounts")
 public class AccountController {
 
 
@@ -48,14 +49,11 @@ public class AccountController {
         this.mailService = mailService;
     }
 
-    /**
-     * {@code POST  /register} : register the user.
-     *
-     * @param managedUserVM the managed user View Model.
-     * @throws InvalidPasswordException {@code 400 (Bad Request)} if the password is incorrect.
-     * @throws EmailAlreadyUsedException {@code 400 (Bad Request)} if the email is already used.
-     * @throws LoginAlreadyUsedException {@code 400 (Bad Request)} if the login is already used.
-     */
+    @Operation(summary = "Register a new user account", description = "Registers a user and sends an activation email")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "User successfully registered"),
+            @ApiResponse(responseCode = "400", description = "Invalid password or email/login already in use")
+    })
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public void registerAccount(@Valid @RequestBody ManagedUserVM managedUserVM) {
@@ -66,12 +64,11 @@ public class AccountController {
         mailService.sendActivationEmail(user);
     }
 
-    /**
-     * {@code GET  /activate} : activate the registered user.
-     *
-     * @param key the activation key.
-     * @throws RuntimeException {@code 500 (Internal Server Error)} if the user couldn't be activated.
-     */
+    @Operation(summary = "Activate user account", description = "Activates a user account using an activation key")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User activated successfully"),
+            @ApiResponse(responseCode = "500", description = "User activation failed")
+    })
     @GetMapping("/activate")
     public void activateAccount(@RequestParam(value = "key") String key) {
         Optional<User> user = userService.activateRegistration(key);
@@ -80,12 +77,8 @@ public class AccountController {
         }
     }
 
-    /**
-     * {@code GET  /account} : get the current user.
-     *
-     * @return the current user.
-     * @throws RuntimeException {@code 500 (Internal Server Error)} if the user couldn't be returned.
-     */
+    @Operation(summary = "Get the current user account", description = "Returns the account details of the current user")
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved the current user account")
     @GetMapping("/account")
     public AdminUserDTO getAccount() {
         return userService
@@ -94,13 +87,11 @@ public class AccountController {
                 .orElseThrow(() -> new AccountControllerException("User could not be found"));
     }
 
-    /**
-     * {@code POST  /account} : update the current user information.
-     *
-     * @param userDTO the current user information.
-     * @throws EmailAlreadyUsedException {@code 400 (Bad Request)} if the email is already used.
-     * @throws RuntimeException {@code 500 (Internal Server Error)} if the user login wasn't found.
-     */
+    @Operation(summary = "Update current user account", description = "Updates the account information of the current user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully updated the user account"),
+            @ApiResponse(responseCode = "400", description = "Email already in use")
+    })
     @PostMapping("/account")
     public void saveAccount(@Valid @RequestBody AdminUserDTO userDTO) {
         String userLogin = SecurityUtils.getCurrentUserLogin()
@@ -122,12 +113,11 @@ public class AccountController {
         );
     }
 
-    /**
-     * {@code POST  /account/change-password} : changes the current user's password.
-     *
-     * @param passwordChangeDto current and new password.
-     * @throws InvalidPasswordException {@code 400 (Bad Request)} if the new password is incorrect.
-     */
+    @Operation(summary = "Change password", description = "Changes the current user's password")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Password changed successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid password")
+    })
     @PostMapping(path = "/account/change-password")
     public void changePassword(@RequestBody PasswordChangeDTO passwordChangeDto) {
         if (isPasswordLengthInvalid(passwordChangeDto.getNewPassword())) {
@@ -136,11 +126,8 @@ public class AccountController {
         userService.changePassword(passwordChangeDto.getCurrentPassword(), passwordChangeDto.getNewPassword());
     }
 
-    /**
-     * {@code POST   /account/reset-password/init} : Send an email to reset the password of the user.
-     *
-     * @param mail the mail of the user.
-     */
+    @Operation(summary = "Request password reset", description = "Sends an email to reset the user's password")
+    @ApiResponse(responseCode = "200", description = "Password reset email sent successfully")
     @PostMapping(path = "/account/reset-password/init")
     public void requestPasswordReset(@RequestBody String mail) {
         Optional<User> user = userService.requestPasswordReset(mail);
@@ -153,13 +140,11 @@ public class AccountController {
         }
     }
 
-    /**
-     * {@code POST   /account/reset-password/finish} : Finish to reset the password of the user.
-     *
-     * @param keyAndPassword the generated key and the new password.
-     * @throws InvalidPasswordException {@code 400 (Bad Request)} if the password is incorrect.
-     * @throws RuntimeException {@code 500 (Internal Server Error)} if the password could not be reset.
-     */
+    @Operation(summary = "Finish password reset", description = "Resets the password using the reset key and new password")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Password reset successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid password or reset key")
+    })
     @PostMapping(path = "/account/reset-password/finish")
     public void finishPasswordReset(@RequestBody KeyAndPasswordVM keyAndPassword) {
         if (isPasswordLengthInvalid(keyAndPassword.getNewPassword())) {

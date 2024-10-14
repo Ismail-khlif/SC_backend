@@ -1,5 +1,9 @@
 package tn.solarchain.rest.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import tn.solarchain.config.Constants;
 import tn.solarchain.domain.User;
 import tn.solarchain.repository.UserRepository;
@@ -33,6 +37,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
 @RequestMapping("/api/admin")
+@Tag(name = "User Management", description = "Operations pertaining to user management in the system")
 public class UserController {
 
     private static final List<String> ALLOWED_ORDERED_PROPERTIES = Collections.unmodifiableList(
@@ -52,6 +57,11 @@ public class UserController {
     }
 
     // Create new user
+    @Operation(summary = "Create a new user", description = "Creates a new user and sends a creation email")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "User successfully created"),
+            @ApiResponse(responseCode = "400", description = "Bad request, user data is invalid")
+    })
     @PostMapping("/users")
     @PreAuthorize("hasAuthority('" + AuthoritiesConstants.ADMIN + "')")
     public ResponseEntity<User> createUser(@Valid @RequestBody AdminUserDTO userDTO) throws URISyntaxException {
@@ -77,6 +87,11 @@ public class UserController {
     }
 
     // Update existing user
+    @Operation(summary = "Update an existing user", description = "Updates the details of an existing user")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "User successfully updated"),
+            @ApiResponse(responseCode = "404", description = "User not found")
+    })
     @PutMapping({ "/users", "/users/{login}" })
     @PreAuthorize("hasAuthority('" + AuthoritiesConstants.ADMIN + "')")
     public ResponseEntity<AdminUserDTO> updateUser(
@@ -99,6 +114,11 @@ public class UserController {
     }
 
     // Get all users with pagination
+    @Operation(summary = "Get all users", description = "Retrieves a list of all users with pagination")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved users list"),
+            @ApiResponse(responseCode = "400", description = "Bad request, invalid query")
+    })
     @GetMapping("/users")
     @PreAuthorize("hasAuthority('" + AuthoritiesConstants.ADMIN + "')")
     public ResponseEntity<List<AdminUserDTO>> getAllUsers(Pageable pageable) {
@@ -113,6 +133,11 @@ public class UserController {
     }
 
     // Get user by login
+    @Operation(summary = "Get a user by login", description = "Retrieves a user by their login ID")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved user"),
+            @ApiResponse(responseCode = "404", description = "User not found")
+    })
     @GetMapping("/users/{login}")
     @PreAuthorize("hasAuthority('" + AuthoritiesConstants.ADMIN + "')")
     public ResponseEntity<AdminUserDTO> getUser(@PathVariable("login") @Pattern(regexp = Constants.LOGIN_REGEX) String login) {
@@ -124,6 +149,11 @@ public class UserController {
     }
 
     // Delete user by login
+    @Operation(summary = "Delete a user", description = "Deletes a user by their login ID")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "User successfully deleted"),
+            @ApiResponse(responseCode = "404", description = "User not found")
+    })
     @DeleteMapping("/users/{login}")
     @PreAuthorize("hasAuthority('" + AuthoritiesConstants.ADMIN + "')")
     public ResponseEntity<Void> deleteUser(@PathVariable("login") @Pattern(regexp = Constants.LOGIN_REGEX) String login) {
