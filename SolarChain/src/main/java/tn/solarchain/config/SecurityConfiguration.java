@@ -1,11 +1,13 @@
 package tn.solarchain.config;
 
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -32,9 +34,10 @@ import java.nio.charset.StandardCharsets;
 
 @Configuration
 @EnableMethodSecurity
-
 public class SecurityConfiguration {
 
+
+    // Rest of your configuration...
     private final CustomUserDetailsService customUserDetailsService;
     public SecurityConfiguration(CustomUserDetailsService customUserDetailsService) {
         this.customUserDetailsService = customUserDetailsService;
@@ -44,8 +47,9 @@ public class SecurityConfiguration {
     @Value("${jwt.secret}")
     private String jwtSecret;
 
-    @Value("${jwt.algorithm:HmacSHA256}")
+    @Value("${jwt.algorithm:HmacSHA512}")
     private String jwtAlgorithm;
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -68,7 +72,7 @@ public class SecurityConfiguration {
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
         grantedAuthoritiesConverter.setAuthorityPrefix("");
-        grantedAuthoritiesConverter.setAuthoritiesClaimName("authorities");
+        grantedAuthoritiesConverter.setAuthoritiesClaimName("auth");
 
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
@@ -80,6 +84,15 @@ public class SecurityConfiguration {
         var bearerTokenResolver = new DefaultBearerTokenResolver();
         bearerTokenResolver.setAllowUriQueryParameter(true);
         return bearerTokenResolver;
+    }
+    @Bean
+    public DaoAuthenticationProvider authenticationProvider() {
+        log.info("Configuring DaoAuthenticationProvider with CustomUserDetailsService");
+
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(customUserDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder()); // Define this as a bean elsewhere
+        return authProvider;
     }
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
@@ -96,7 +109,7 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                 .requestMatchers("/api/authenticate").permitAll()
-                .anyRequest().permitAll()
+                .anyRequest().authenticated()
                 .and()
                 .oauth2ResourceServer()
                 .jwt()
@@ -104,8 +117,8 @@ public class SecurityConfiguration {
         return http.build();
     }
 
-    // Helper to decode the base64 secret
     private byte[] getDecodedSecret() {
-        return Base64.from(jwtSecret).decode();
+        return java.util.Base64.getDecoder().decode(jwtSecret);
     }
+
 }

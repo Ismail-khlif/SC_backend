@@ -9,11 +9,15 @@ import tn.solarchain.domain.User;
 
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.reflections.Reflections.log;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
+
+    private static final Logger log = LoggerFactory.getLogger(CustomUserDetailsService.class); // Use SLF4J logger
 
     private final UserRepository userRepository;
 
@@ -42,8 +46,8 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .withUsername(user.getLogin())
                 .password(user.getPassword())
                 .authorities(user.getAuthorities().stream()
-                        .map(authority -> authority.getName())
-                        .collect(Collectors.toList()).toArray(new String[0]))
+                        .map(authority -> authority.getName()) // Assuming getName() retrieves the role
+                        .collect(Collectors.toList()).toArray(new String[0])) // Authorities are returned as strings
                 .build();
     }
 }

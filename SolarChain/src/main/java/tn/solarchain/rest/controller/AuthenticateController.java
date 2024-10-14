@@ -46,7 +46,7 @@ public class AuthenticateController {
     private final JwtEncoder jwtEncoder;
     private final AuthenticationManager authenticationManager;
 
-    @Value("${jwt.token.validity.in.seconds:0}")
+    @Value("${jwt.token-validity-in-seconds:0}")
     private long tokenValidityInSeconds;
 
     @Value("${jwt.token.validity.in.seconds.for.remember.me:0}")
@@ -65,15 +65,20 @@ public class AuthenticateController {
     @PostMapping("/authenticate")
     public ResponseEntity<JWTToken> authorize(@Valid @RequestBody LoginVM loginVM) {
         try {
-            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                    loginVM.getUsername(),
-                    loginVM.getPassword()
-            );
+            UsernamePasswordAuthenticationToken authenticationToken =
+                    new UsernamePasswordAuthenticationToken(loginVM.getUsername(), loginVM.getPassword());
 
             log.info("Attempting authentication for user: {}", loginVM.getUsername());
             Authentication authentication = authenticationManager.authenticate(authenticationToken);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            // Check if the authentication is successful
+            if (authentication.isAuthenticated()) {
+                log.info("Authentication successful for user: {}", authentication.getName());
+            } else {
+                log.warn("Authentication failed for user: {}", loginVM.getUsername());
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
 
+            SecurityContextHolder.getContext().setAuthentication(authentication);
             String jwt = this.createToken(authentication, loginVM.isRememberMe());
             log.info("JWT Token created for user: {}", loginVM.getUsername());
 
@@ -89,6 +94,7 @@ public class AuthenticateController {
 
 
 
+
     @Operation(summary = "Check if the user is authenticated", description = "Returns the authenticated user's login if they are authenticated")
     @ApiResponse(responseCode = "200", description = "User is authenticated")
     @GetMapping(value = "/authenticate", produces = MediaType.TEXT_PLAIN_VALUE)
@@ -98,26 +104,61 @@ public class AuthenticateController {
     }
 
     public String createToken(Authentication authentication, boolean rememberMe) {
-        String authorities = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.joining(" "));
+        try {
+            // Log the received authentication details
+            log.info("Creating token for user: {}", authentication.getName());
+            log.info("Authorities for token: {}", authentication.getAuthorities());
 
-        Instant now = Instant.now();
-        Instant validity;
-        if (rememberMe) {
-            validity = now.plus(this.tokenValidityInSecondsForRememberMe, ChronoUnit.SECONDS);
-        } else {
-            validity = now.plus(this.tokenValidityInSeconds, ChronoUnit.SECONDS);
+            // Extract authorities and log them
+            String authorities = authentication.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .collect(Collectors.joining(" "));
+            log.info("Authorities to be included in the token: {}", authorities);
+
+            // Set the token issue and expiration times
+            Instant now = Instant.now();
+            Instant validity;
+            if (rememberMe) {
+                log.info("Remember me selected, using longer token validity: {} seconds", this.tokenValidityInSecondsForRememberMe);
+                validity = now.plus(this.tokenValidityInSecondsForRememberMe, ChronoUnit.SECONDS);
+                log.info(String.valueOf(validity));
+            } else {
+                log.info("Regular token validity: {} seconds", this.tokenValidityInSeconds);
+                validity = now.plus(this.tokenValidityInSeconds, ChronoUnit.SECONDS);
+                log.info(String.valueOf(validity));
+            }
+
+            // Add a small buffer (e.g., 1 second) to ensure the expiration is after issuedAt
+            validity = validity.plus(1, ChronoUnit.SECONDS);
+            log.info("Issued at time: {}", now);
+            log.info("Expires at time (with buffer): {}", validity);
+
+            // Build the JWT claims set and log the claims
+            JwtClaimsSet claims = JwtClaimsSet.builder()
+                    .issuedAt(now)
+                    .expiresAt(validity)
+                    .subject(authentication.getName())
+                    .claim(SecurityUtils.AUTHORITIES_KEY, authorities)
+                    .build();
+            log.info("JWT Claims: {}", claims);
+
+            // Build the JWT header and log it
+            JwsHeader jwsHeader = JwsHeader.with(SecurityUtils.JWT_ALGORITHM).build();
+            log.info("JWT Header: {}", jwsHeader);
+
+            // Encode the JWT and log the result
+            String token = this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, claims)).getTokenValue();
+            log.info("JWT successfully created for user: {}", authentication.getName());
+
+            return token;
+        } catch (Exception e) {
+            // Log any exceptions that occur during the token creation process
+            log.error("Error during JWT token creation: ", e);
+            throw e;  // Rethrow to ensure proper exception handling
         }
-
-        JwtClaimsSet claims = JwtClaimsSet.builder()
-                .issuedAt(now)
-                .expiresAt(validity)
-                .subject(authentication.getName())
-                .claim(SecurityUtils.AUTHORITIES_KEY, authorities)
-                .build();
-
-        JwsHeader jwsHeader = JwsHeader.with(SecurityUtils.JWT_ALGORITHM).build();
-        return this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, claims)).getTokenValue();
     }
+
+
 
     static class JWTToken {
         private String idToken;
