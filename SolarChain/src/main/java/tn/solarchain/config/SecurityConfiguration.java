@@ -52,8 +52,6 @@ public class SecurityConfiguration {
 
     @Value("${jwt.algorithm:HmacSHA512}")
     private String jwtAlgorithm;
-    @Value("${jwt.token-validity-in-seconds:3600}")
-    private long tokenValidityInSeconds;
 
 
     @Bean
