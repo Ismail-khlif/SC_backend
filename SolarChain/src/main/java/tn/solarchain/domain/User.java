@@ -24,10 +24,8 @@ import org.springframework.data.mongodb.core.mapping.Field;
 public class User extends AbstractAuditingEntity<String> implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
     @Id
     private String id;
-
     @NotNull
     @Pattern(regexp = Constants.LOGIN_REGEX)
     @Size(min = 1, max = 50)

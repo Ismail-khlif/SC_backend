@@ -93,10 +93,6 @@ public class AuthenticateController {
         }
     }
 
-
-
-
-
     @Operation(summary = "Check if the user is authenticated", description = "Returns the authenticated user's login if they are authenticated")
     @ApiResponse(responseCode = "200", description = "User is authenticated")
     @GetMapping(value = "/authenticate", produces = MediaType.TEXT_PLAIN_VALUE)
@@ -107,15 +103,9 @@ public class AuthenticateController {
 
     public String createToken(Authentication authentication, boolean rememberMe) {
         try {
-
-
-            // Extract authorities and log them
             String authorities = authentication.getAuthorities().stream()
                     .map(GrantedAuthority::getAuthority)
                     .collect(Collectors.joining(" "));
-
-
-            // Set the token issue and expiration times
             Instant now = Instant.now();
             Instant validity;
             if (rememberMe) {
@@ -125,39 +115,22 @@ public class AuthenticateController {
 
                 validity = now.plus(this.tokenValidityInSeconds, ChronoUnit.SECONDS);
             }
-
-            // Add a small buffer (e.g., 1 second) to ensure the expiration is after issuedAt
             validity = validity.plus(1, ChronoUnit.SECONDS);
-
-
-            // Build the JWT claims set and log the claims
             JwtClaimsSet claims = JwtClaimsSet.builder()
                     .issuedAt(now)
                     .expiresAt(validity)
                     .subject(authentication.getName())
                     .claim(SecurityUtils.AUTHORITIES_KEY, authorities)
                     .build();
-
-            // Build the JWT header and log it
             JwsHeader jwsHeader = JwsHeader.with(SecurityUtils.JWT_ALGORITHM).build();
-
-            // Encode the JWT and log the result
             String token = this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, claims)).getTokenValue();
-
-            // Decode the JWT to print its claims before returning it
             Jwt decodedJwt = this.jwtDecoder.decode(token);
-
-
             return token;
         } catch (Exception e) {
-            // Log any exceptions that occur during the token creation process
             log.error("Error during JWT token creation: ", e);
-            throw e;  // Rethrow to ensure proper exception handling
+            throw e;
         }
     }
-
-
-
 
     static class JWTToken {
         private String idToken;

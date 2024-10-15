@@ -1,9 +1,11 @@
 package tn.solarchain.rest.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.data.web.PageableDefault;
 import tn.solarchain.config.Constants;
 import tn.solarchain.domain.User;
 import tn.solarchain.repository.UserRepository;
@@ -121,7 +123,7 @@ public class UserController {
     })
     @GetMapping("/users")
     @PreAuthorize("hasAuthority('" + AuthoritiesConstants.ADMIN + "')")
-    public ResponseEntity<List<AdminUserDTO>> getAllUsers(Pageable pageable) {
+    public ResponseEntity<List<AdminUserDTO>> getAllUsers(@Parameter(hidden = true) @PageableDefault(size = 10)Pageable pageable) {
         LOG.debug("REST request to get all Users for admin");
         if (!onlyContainsAllowedProperties(pageable)) {
             return ResponseEntity.badRequest().build();
