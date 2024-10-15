@@ -14,10 +14,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jwt.*;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
@@ -26,18 +24,20 @@ import org.springframework.security.oauth2.server.resource.web.DefaultBearerToke
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
-import com.nimbusds.jose.util.Base64;
 import org.springframework.security.web.SecurityFilterChain;
 import tn.solarchain.security.CustomUserDetailsService;
 
-import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.Map;
+
 
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfiguration {
 
 
-    // Rest of your configuration...
     private final CustomUserDetailsService customUserDetailsService;
     public SecurityConfiguration(CustomUserDetailsService customUserDetailsService) {
         this.customUserDetailsService = customUserDetailsService;
@@ -49,6 +49,8 @@ public class SecurityConfiguration {
 
     @Value("${jwt.algorithm:HmacSHA512}")
     private String jwtAlgorithm;
+    @Value("${jwt.token-validity-in-seconds:3600}")
+    private long tokenValidityInSeconds;
 
 
     @Bean
@@ -59,14 +61,70 @@ public class SecurityConfiguration {
     @Bean
     public JwtEncoder jwtEncoder() {
         SecretKey secretKey = new SecretKeySpec(getDecodedSecret(), jwtAlgorithm);
-        return new NimbusJwtEncoder(new ImmutableSecret<>(secretKey));
-    }
+        System.out.println("JWT Encoder using SecretKey (Algorithm: " + jwtAlgorithm + "): " + Base64.getEncoder().encodeToString(secretKey.getEncoded()));
+        System.out.println(getDecodedSecret());
+        JwtEncoder encoder = new NimbusJwtEncoder(new ImmutableSecret<>(secretKey));
 
+        return new JwtEncoder() {
+            @Override
+            public Jwt encode(JwtEncoderParameters parameters) throws JwtException {
+                System.out.println("Encoding JWT with Claims: " + parameters.getClaims());
+                Jwt jwt = encoder.encode(parameters);
+                System.out.println("JWT Token successfully created: " + jwt.getTokenValue());
+                return jwt;
+            }
+        };
+    }
     @Bean
     public JwtDecoder jwtDecoder() {
         SecretKey secretKey = new SecretKeySpec(getDecodedSecret(), jwtAlgorithm);
-        return NimbusJwtDecoder.withSecretKey(secretKey).build();
+
+        // Log the algorithm and the encoded secret key
+        System.out.println("JWT Decoder using SecretKey (Algorithm: " + jwtAlgorithm + "): " + Base64.getEncoder().encodeToString(secretKey.getEncoded()));
+        System.out.println("Decoded Secret Key (Raw Bytes): " + Arrays.toString(getDecodedSecret())); // Log the raw secret key bytes
+
+        NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withSecretKey(secretKey).macAlgorithm(MacAlgorithm.HS512).build();
+
+
+        return new JwtDecoder() {
+            @Override
+            public Jwt decode(String token) throws JwtException {
+                System.out.println("Decoding JWT Token: " + token);
+                try {
+                    // First step: Log token details before decoding
+                    String[] tokenParts = token.split("\\.");
+                    System.out.println("Header (Base64-encoded): " + tokenParts[0]);
+                    System.out.println("Payload (Base64-encoded): " + tokenParts[1]);
+                    System.out.println("Signature (Base64-encoded): " + tokenParts[2]);
+
+                    // Second step: Decoding token using Nimbus JWT Decoder
+                    Jwt decodedJwt = jwtDecoder.decode(token);
+
+                    // Log after successfully decoding the token
+                    System.out.println("Decoded JWT Claims: " + decodedJwt.getClaims());
+                    System.out.println("Decoded JWT Header: " + decodedJwt.getHeaders());
+                    System.out.println("Decoded JWT Subject: " + decodedJwt.getSubject());
+                    System.out.println("Decoded JWT Issuer: " + decodedJwt.getIssuer());
+
+                    // Log the expiration and issued time (if present)
+                    if (decodedJwt.getExpiresAt() != null) {
+                        System.out.println("JWT Expiration Time: " + decodedJwt.getExpiresAt());
+                    }
+                    if (decodedJwt.getIssuedAt() != null) {
+                        System.out.println("JWT Issued At: " + decodedJwt.getIssuedAt());
+                    }
+
+                    return decodedJwt;
+                } catch (JwtException e) {
+                    // Log the exception details
+                    System.out.println("Failed to decode JWT Token: " + e.getMessage());
+                    e.printStackTrace(); // Print the stack trace for deeper inspection
+                    throw e;
+                }
+            }
+        };
     }
+
 
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
@@ -118,7 +176,8 @@ public class SecurityConfiguration {
     }
 
     private byte[] getDecodedSecret() {
-        return java.util.Base64.getDecoder().decode(jwtSecret);
+
+        return java.util.Base64.getDecoder().decode(jwtSecret);  // Decode the Base64-encoded secret key
     }
 
 }
